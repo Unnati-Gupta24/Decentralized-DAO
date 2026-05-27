@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { analyzeDAO, DAOAnalysis } from '@/lib/dao-math';
-import { analyzeCoalitions, getCoalitionStats } from '@/lib/coalition-utils';
-import { GlassCard } from '@/components/ui/GlassCard';
-import { MetricBadge } from '@/components/ui/MetricBadge';
-import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
-import { Header } from '@/components/Header';
-import { CoalitionVisualizer } from '@/components/CoalitionVisualizer';
-import { getChartDataWithColors, formatMetrics } from '@/lib/chart-utils';
+import { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
+import { analyzeDAODetailed, DAOAnalysis } from '@/lib/dao-math'
+import { analyzeCoalitions, getCoalitionStats } from '@/lib/coalition-utils'
+import { GlassCard } from '@/components/ui/GlassCard'
+import { MetricBadge } from '@/components/ui/MetricBadge'
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber'
+import { Header } from '@/components/Header'
+import { CoalitionVisualizer } from '@/components/CoalitionVisualizer'
+import { getChartDataWithColors, formatMetrics } from '@/lib/chart-utils'
 import {
   LineChart,
   Line,
@@ -26,45 +26,51 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
+} from 'recharts'
 
-const DEFAULT_POWERS = [30, 25, 20, 15, 10];
+const DEFAULT_POWERS = [30, 25, 20, 15, 10]
 
 export default function Calculator() {
-  const [powers, setPowers] = useState<number[]>(DEFAULT_POWERS);
-  const [input, setInput] = useState('');
+  const [powers, setPowers] = useState<number[]>(DEFAULT_POWERS)
+  const [input, setInput] = useState('')
 
-  const analysis: DAOAnalysis = useMemo(() => analyzeDAO(powers), [powers]);
-  const coalitions = useMemo(() => analyzeCoalitions(powers), [powers]);
-  const coalitionStats = useMemo(() => getCoalitionStats(coalitions), [coalitions]);
+  const analysis: DAOAnalysis = useMemo(
+    () => analyzeDAODetailed(powers),
+    [powers],
+  )
+  const coalitions = useMemo(() => analyzeCoalitions(powers), [powers])
+  const coalitionStats = useMemo(
+    () => getCoalitionStats(coalitions),
+    [coalitions],
+  )
 
   const handleAddPower = () => {
     if (input && !isNaN(Number(input))) {
-      setPowers([...powers, Number(input)]);
-      setInput('');
+      setPowers([...powers, Number(input)])
+      setInput('')
     }
-  };
+  }
 
   const handleRemove = (index: number) => {
-    setPowers(powers.filter((_, i) => i !== index));
-  };
+    setPowers(powers.filter((_, i) => i !== index))
+  }
 
   const handleReset = () => {
-    setPowers(DEFAULT_POWERS);
-    setInput('');
-  };
+    setPowers(DEFAULT_POWERS)
+    setInput('')
+  }
 
-  const chartData = getChartDataWithColors(analysis, powers);
-  const metrics = formatMetrics(analysis, powers);
-  
-  const shapleyData = chartData.shapleyData;
-  const banzhafData = chartData.banzhafData;
-  const lorenzData = chartData.lorenzData;
-  
+  const chartData = getChartDataWithColors(analysis, powers)
+  const metrics = formatMetrics(analysis, powers)
+
+  const shapleyData = chartData.shapleyData
+  const banzhafData = chartData.banzhafData
+  const lorenzData = chartData.lorenzData
+
   const coalitionData = analysis.coalitions.map((c) => ({
     size: `Top ${c.size}`,
     power: parseFloat(c.percentage.toFixed(2)),
-  }));
+  }))
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -75,7 +81,7 @@ export default function Calculator() {
         delayChildren: 0.1,
       },
     },
-  };
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -84,7 +90,7 @@ export default function Calculator() {
       y: 0,
       transition: { duration: 0.4 },
     },
-  };
+  }
 
   return (
     <>
@@ -102,8 +108,8 @@ export default function Calculator() {
               DAO Analysis Calculator
             </h2>
             <p className="text-white/60 max-w-2xl">
-              Analyze governance decentralization using Gini coefficient, Nakamoto coefficient, and
-              other metrics
+              Analyze governance decentralization using Gini coefficient,
+              Nakamoto coefficient, and other metrics
             </p>
           </motion.div>
 
@@ -148,7 +154,10 @@ export default function Calculator() {
                         className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10"
                       >
                         <span className="text-sm font-medium">
-                          Entity {i + 1}: <span className="text-primary font-bold">{power}</span>
+                          Entity {i + 1}:{' '}
+                          <span className="text-primary font-bold">
+                            {power}
+                          </span>
                         </span>
                         <button
                           onClick={() => handleRemove(i)}
@@ -169,7 +178,10 @@ export default function Calculator() {
                     Reset
                   </button>
                   <div className="flex-1 text-center py-2 text-sm text-white/60">
-                    Total: <span className="text-primary font-bold">{powers.reduce((a, b) => a + b, 0)}</span>
+                    Total:{' '}
+                    <span className="text-primary font-bold">
+                      {powers.reduce((a, b) => a + b, 0)}
+                    </span>
                   </div>
                 </div>
               </GlassCard>
@@ -183,9 +195,20 @@ export default function Calculator() {
               className="lg:col-span-2"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <MetricBadge label="Gini Coefficient" metric={analysis.gini} suffix="%" />
-                <MetricBadge label="Nakamoto Coefficient" metric={analysis.nakamoto} />
-                <MetricBadge label="Apoke Index" metric={analysis.apoke} suffix="%" />
+                <MetricBadge
+                  label="Gini Coefficient"
+                  metric={analysis.gini}
+                  suffix="%"
+                />
+                <MetricBadge
+                  label="Nakamoto Coefficient"
+                  metric={analysis.nakamoto}
+                />
+                <MetricBadge
+                  label="Apoke Index"
+                  metric={analysis.apoke}
+                  suffix="%"
+                />
                 <GlassCard className="p-4">
                   <div className="space-y-2">
                     <div className="section-label">Composite Score</div>
@@ -212,20 +235,38 @@ export default function Calculator() {
               <GlassCard className="p-4 bg-white/[0.05] border border-white/10 mb-4">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                   <div>
-                    <div className="text-white/50 font-mono mb-1">Total Entities</div>
-                    <div className="text-lg font-bold text-white/90">{metrics.totalEntities}</div>
+                    <div className="text-white/50 font-mono mb-1">
+                      Total Entities
+                    </div>
+                    <div className="text-lg font-bold text-white/90">
+                      {metrics.totalEntities}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-white/50 font-mono mb-1">Concentration Ratio</div>
-                    <div className="text-lg font-bold text-white/90">{metrics.concentrationRatio}%</div>
+                    <div className="text-white/50 font-mono mb-1">
+                      Concentration Ratio
+                    </div>
+                    <div className="text-lg font-bold text-white/90">
+                      {metrics.concentrationRatio}%
+                    </div>
                   </div>
                   <div>
-                    <div className="text-white/50 font-mono mb-1">Top Entity Power</div>
-                    <div className="text-lg font-bold text-white/90">{powers[0]}</div>
+                    <div className="text-white/50 font-mono mb-1">
+                      Top Entity Power
+                    </div>
+                    <div className="text-lg font-bold text-white/90">
+                      {powers[0]}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-white/50 font-mono mb-1">Avg Entity Power</div>
-                    <div className="text-lg font-bold text-white/90">{(powers.reduce((a, b) => a + b, 0) / powers.length).toFixed(0)}</div>
+                    <div className="text-white/50 font-mono mb-1">
+                      Avg Entity Power
+                    </div>
+                    <div className="text-lg font-bold text-white/90">
+                      {(
+                        powers.reduce((a, b) => a + b, 0) / powers.length
+                      ).toFixed(0)}
+                    </div>
                   </div>
                 </div>
               </GlassCard>
@@ -246,11 +287,22 @@ export default function Calculator() {
                 <AreaChart data={lorenzData}>
                   <defs>
                     <linearGradient id="colorArea" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="rgba(255,255,255,0.3)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="rgba(255,255,255,0.3)" stopOpacity={0} />
+                      <stop
+                        offset="5%"
+                        stopColor="rgba(255,255,255,0.3)"
+                        stopOpacity={0.3}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="rgba(255,255,255,0.3)"
+                        stopOpacity={0}
+                      />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.1)"
+                  />
                   <XAxis dataKey="x" stroke="rgba(255,255,255,0.5)" />
                   <YAxis stroke="rgba(255,255,255,0.5)" />
                   <Tooltip
@@ -266,7 +318,13 @@ export default function Calculator() {
                     fillOpacity={1}
                     fill="url(#colorArea)"
                   />
-                  <Line type="linear" dataKey="x" stroke="#ffffff" opacity={0.3} isAnimationActive={false} />
+                  <Line
+                    type="linear"
+                    dataKey="x"
+                    stroke="#ffffff"
+                    opacity={0.3}
+                    isAnimationActive={false}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </GlassCard>
@@ -276,7 +334,10 @@ export default function Calculator() {
               <h3 className="section-label mb-4">Coalition Power</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={coalitionData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.1)"
+                  />
                   <XAxis dataKey="size" stroke="rgba(255,255,255,0.5)" />
                   <YAxis stroke="rgba(255,255,255,0.5)" />
                   <Tooltip
@@ -285,7 +346,11 @@ export default function Calculator() {
                       border: '1px solid rgba(255,255,255,0.2)',
                     }}
                   />
-                  <Bar dataKey="power" fill="rgba(255,255,255,0.4)" radius={[8, 8, 0, 0]} />
+                  <Bar
+                    dataKey="power"
+                    fill="rgba(255,255,255,0.4)"
+                    radius={[8, 8, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </GlassCard>
@@ -295,8 +360,17 @@ export default function Calculator() {
               <h3 className="section-label mb-4">Shapley Values</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={shapleyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" angle={-45} textAnchor="end" height={80} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.1)"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    stroke="rgba(255,255,255,0.5)"
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
                   <YAxis stroke="rgba(255,255,255,0.5)" />
                   <Tooltip
                     contentStyle={{
@@ -318,8 +392,17 @@ export default function Calculator() {
               <h3 className="section-label mb-4">Banzhaf Indices</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={banzhafData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" angle={-45} textAnchor="end" height={80} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.1)"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    stroke="rgba(255,255,255,0.5)"
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
                   <YAxis stroke="rgba(255,255,255,0.5)" />
                   <Tooltip
                     contentStyle={{
@@ -351,13 +434,20 @@ export default function Calculator() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/10">
-                      <th className="text-left py-3 px-3 font-semibold text-white/70">Entity</th>
-                      <th className="text-right py-3 px-3 font-semibold text-white/70">Contribution</th>
+                      <th className="text-left py-3 px-3 font-semibold text-white/70">
+                        Entity
+                      </th>
+                      <th className="text-right py-3 px-3 font-semibold text-white/70">
+                        Contribution
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {shapleyData.map((item, i) => (
-                      <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <tr
+                        key={i}
+                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                      >
                         <td className="py-3 px-3">{item.name}</td>
                         <td className="py-3 px-3 text-right font-mono text-primary">
                           {item.value.toFixed(4)}
@@ -371,7 +461,9 @@ export default function Calculator() {
 
             {/* Coalition Formation Analysis - Enhanced */}
             <GlassCard className="p-6 premium-shadow">
-              <h3 className="section-label mb-4">Coalition Formations with Entity Details</h3>
+              <h3 className="section-label mb-4">
+                Coalition Formations with Entity Details
+              </h3>
               <CoalitionVisualizer coalitions={coalitions} powers={powers} />
             </GlassCard>
           </motion.div>
@@ -388,14 +480,18 @@ export default function Calculator() {
               <div className="text-4xl font-bold gradient-text">
                 {coalitionStats.dominantCount}
               </div>
-              <p className="text-xs text-white/60 mt-2">Groups with 51%+ control</p>
+              <p className="text-xs text-white/60 mt-2">
+                Groups with 51%+ control
+              </p>
             </GlassCard>
             <GlassCard className="p-4 premium-shadow">
               <div className="section-label mb-3">Veto Coalitions</div>
               <div className="text-4xl font-bold gradient-text">
                 {coalitionStats.vetoCount}
               </div>
-              <p className="text-xs text-white/60 mt-2">Groups with 33%+ power</p>
+              <p className="text-xs text-white/60 mt-2">
+                Groups with 33%+ power
+              </p>
             </GlassCard>
             <GlassCard className="p-4 premium-shadow">
               <div className="section-label mb-3">Most Powerful</div>
@@ -419,5 +515,5 @@ export default function Calculator() {
         </div>
       </main>
     </>
-  );
+  )
 }
